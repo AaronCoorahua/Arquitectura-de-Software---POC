@@ -28,36 +28,35 @@ Segun el README original, estas integraciones existen en la arquitectura pero pa
 
 Tambien `Redis` queda fuera de implementacion real en esta primera version.
 
-## Reglas de mock definidas para empezar a implementar
+## Reglas de mock a implementar
 
 ### Mock SUNAT
 
-El POC no se conecta a SUNAT real.
+El POC no se conecta a SUNAT real. Esta simulacion queda como `TODO` del equipo.
 
-Se fija esta regla minima:
-
-- si `correlativo` termina en `99`, la validacion responde rechazada
-- en cualquier otro caso, la validacion responde aceptada
-
-Salida esperada del mock:
+La implementacion del mock debe devolver como minimo:
 
 - `source = "sunat_mock"`
 - `is_valid = true/false`
 - `observations = []` o mensajes de observacion
 - `rejection_reason = null` o `"SUNAT validation failed"`
 
-Esto cubre el camino exitoso y el camino fallido exigidos por el README.
+Debe cubrir al menos:
+
+- un caso exitoso
+- un caso fallido
+
+La regla exacta del mock queda abierta para implementacion del equipo.
 
 ### Mock pasarela de pagos
 
 El README menciona pagos por `Yape`, `Plin`, `Tarjeta`, `transferencia`, y en observaciones tambien aparece wallet como posibilidad.
 
-Para este POC se fija:
+Para este POC se deja como `TODO`:
 
 - no hay integracion real con una pasarela externa
-- el backend solo valida que el metodo de pago este soportado
-- si el metodo es soportado, el pago se considera exitoso
-- si el metodo no es soportado, la compra se rechaza
+- se debe crear una simulacion de respuesta de pago
+- la compra debe reaccionar a exito o falla del mock
 
 Metodos soportados en esta iteracion:
 
@@ -74,8 +73,8 @@ El README indica que hay servicio bancario y pago a la empresa vendedora, pero t
 Para alinear el POC con ese alcance:
 
 - no se implementa integracion real con banco
-- no se realiza desembolso a empresa vendedora
-- no se realiza recaudacion ni payout al vencimiento
+- no se realiza desembolso a empresa vendedora en esta base
+- no se realiza recaudacion ni payout al vencimiento en esta base
 - el banco queda representado solo como dependencia futura
 
 ## Supuestos cerrados para este POC
@@ -87,6 +86,7 @@ Estos supuestos ya no quedan abiertos para el equipo:
 - `Tracking` se guarda de forma minima en memoria para esta primera base.
 - No hay `Redis` real en esta iteracion.
 - No hay integracion real con `SUNAT API`, pasarela ni banco.
+- Los mocks de SUNAT y pagos quedan intencionalmente como `TODO`.
 - El pago a la empresa vendedora queda fuera del alcance del `POST /facturas`.
 - La evaluacion de empresa compradora/deudora no se desarrolla como servicio separado; en esta base solo se deja contemplada como extension futura.
 
@@ -198,8 +198,8 @@ Cada modulo tiene:
 
 - contrato base de facturas
 - contrato base de compra
-- validacion SUNAT mock
-- validacion de medio de pago mock
+- estructura para implementar mock SUNAT
+- estructura para implementar mock de medio de pago
 - tracking minimo
 - almacenamiento temporal en memoria
 
@@ -210,6 +210,8 @@ Cada modulo tiene:
 - redis real
 - pasarela real
 - banco real
+- mock SUNAT implementado
+- mock de pagos implementado
 - payout a empresa vendedora
 - dashboard
 - wallet real

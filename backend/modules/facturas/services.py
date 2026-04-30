@@ -37,6 +37,8 @@ def create_invoice_service(payload: InvoiceCreate) -> InvoiceResponse:
     invoices[invoice_id] = invoice
     add_tracking(invoice_id, TrackingStatus.INVOICE_UPLOADED, "Factura subida al sistema.")
 
+    # TODO: aqui debe ejecutarse la validacion mock de SUNAT y la validacion
+    # de negocio para decidir si la factura pasa a published o rejected.
     validation = validate_invoice_data(
         ValidateInvoiceRequest(
             ruc_emisor=payload.ruc_emisor,

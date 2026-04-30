@@ -31,18 +31,17 @@ Cada modulo tiene:
 
 No hay integracion real con SUNAT.
 
-Regla actual del mock:
+La simulacion queda como `TODO` del equipo.
 
-- si `correlativo` termina en `99`, la factura se rechaza
-- en cualquier otro caso, la factura se valida
-
-El endpoint devuelve `source = "sunat_mock"`.
+El endpoint y el servicio ya existen, pero la logica mock no esta implementada todavia.
 
 ### Pasarela de pagos
 
 No hay pasarela real.
 
-La compra solo valida que el metodo de pago pertenezca a:
+La simulacion queda como `TODO` del equipo.
+
+La compra hoy solo deja visible la lista base de metodos pensados para el POC:
 
 - `yape`
 - `plin`
@@ -50,7 +49,7 @@ La compra solo valida que el metodo de pago pertenezca a:
 - `transferencia`
 - `wallet`
 
-Si el metodo es valido, el POC considera el pago como exitoso.
+Falta implementar la respuesta mock de exito o falla.
 
 ### Servicio bancario
 
@@ -83,3 +82,4 @@ uvicorn main:app --reload
 - `seller_id` e `investor_id` hoy se manejan como mock
 - `tracking` se guarda de forma minima
 - `Auth`, `Redis`, banco y pasarela real quedan para una siguiente etapa
+- mock de `SUNAT` y mock de pagos quedan marcados como `TODO`
