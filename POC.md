@@ -126,6 +126,215 @@ Validaciones minimas:
 - el metodo de pago debe estar soportado
 - el monto no puede superar el saldo disponible
 
+## Manejo de fallos por flujo
+
+Esta seccion fija que debe pasar si falla un servicio o una validacion dentro de los dos paths principales del POC.
+
+## Critical Path: `POST /facturas`
+
+### Caso exitoso
+
+Secuencia esperada:
+
+1. validacion interna exitosa
+2. validacion SUNAT mock exitosa
+3. validacion de negocio exitosa
+4. factura publicada
+
+Resultado:
+
+- `status` de factura: `published`
+- response sugerido: `201`
+- tracking esperado:
+  - `invoice_uploaded`
+  - `sunat_validated`
+  - `invoice_published`
+
+### Fallo en validacion interna
+
+Ejemplos:
+
+- monto menor o igual a cero
+- fecha de vencimiento invalida
+- factura duplicada
+- campos obligatorios incompletos
+
+Resultado esperado:
+
+- no se llama a SUNAT mock
+- la factura no debe quedar publicada
+- response sugerido: `400`
+- response body con mensaje claro de validacion
+- tracking minimo esperado:
+  - opcional registrar `invoice_uploaded` solo si ya se persistio antes de validar
+  - no registrar `sunat_validated`
+  - no registrar `invoice_published`
+
+Decision recomendada para el equipo:
+
+- validar primero y persistir despues para evitar facturas invalidas guardadas
+
+### Fallo en `Validation & SUNAT Service`
+
+Esto cubre cuando el mock de SUNAT responde rechazo funcional.
+
+Resultado esperado:
+
+- la factura queda `rejected`
+- response sugerido: `400`
+- `rejection_reason` obligatorio
+- tracking esperado:
+  - `invoice_uploaded`
+  - no registrar `sunat_validated`
+  - no registrar `invoice_published`
+
+### Falla tecnica del mock SUNAT
+
+Esto cubre timeout, excepcion interna o indisponibilidad del mock.
+
+Resultado esperado:
+
+- la factura no debe quedar `published`
+- response sugerido: `503`
+- mensaje tipo `SUNAT service unavailable`
+- tracking esperado:
+  - `invoice_uploaded` si ya se registro entrada
+  - no registrar `sunat_validated`
+  - no registrar `invoice_published`
+
+Decision recomendada para el equipo:
+
+- dejar la factura en `validating` o no persistirla si prefieren una version mas simple
+- documentar una sola politica y mantenerla consistente
+
+### Fallo en validacion de negocio
+
+Esto cubre rechazo posterior a SUNAT, por ejemplo evaluacion de empresa compradora/deudora.
+
+Resultado esperado:
+
+- la factura queda `rejected`
+- response sugerido: `400`
+- `rejection_reason` de negocio obligatorio
+- tracking esperado:
+  - `invoice_uploaded`
+  - `sunat_validated`
+  - no registrar `invoice_published`
+
+## Happy Path: `POST /facturas/{id}/comprar`
+
+### Caso exitoso
+
+Secuencia esperada:
+
+1. factura encontrada
+2. factura disponible para compra
+3. monto valido
+4. metodo de pago soportado
+5. mock de pasarela/pago responde exito
+6. se registra la compra
+7. se actualiza saldo disponible
+
+Resultado:
+
+- compra `confirmed`
+- response sugerido: `200`
+- tracking esperado:
+  - `purchase_registered`
+
+### Fallo porque la factura no existe
+
+Resultado esperado:
+
+- no se crea compra
+- no se modifica saldo
+- response sugerido: `404`
+- no registrar `purchase_registered`
+
+### Fallo porque la factura no esta disponible
+
+Ejemplos:
+
+- factura `rejected`
+- factura `funded`
+- factura `paid`
+
+Resultado esperado:
+
+- no se crea compra
+- no se modifica saldo
+- response sugerido: `400`
+- no registrar `purchase_registered`
+
+### Fallo por monto invalido
+
+Ejemplos:
+
+- monto mayor al saldo disponible
+- monto menor o igual a cero
+
+Resultado esperado:
+
+- no se crea compra
+- no se modifica saldo
+- response sugerido: `400`
+- no registrar `purchase_registered`
+
+### Fallo por metodo de pago no soportado
+
+Resultado esperado:
+
+- no se llama al mock de pago
+- no se crea compra
+- no se modifica saldo
+- response sugerido: `400`
+- no registrar `purchase_registered`
+
+### Fallo funcional del mock de pasarela
+
+Esto cubre cuando el mock responde pago rechazado.
+
+Resultado esperado:
+
+- la compra no se confirma
+- la factura conserva su saldo disponible
+- response sugerido: `402` o `400`
+- no registrar `purchase_registered`
+
+Decision recomendada para el equipo:
+
+- usar `400` si quieren simplicidad
+- usar `402` si quieren expresar fallo de pago de forma mas semantica
+
+### Falla tecnica del mock de pasarela o banco
+
+Esto cubre timeout, excepcion interna o indisponibilidad tecnica del mock.
+
+Resultado esperado:
+
+- la compra no se registra
+- la factura conserva su saldo disponible
+- response sugerido: `503`
+- mensaje tipo `payment service unavailable`
+- no registrar `purchase_registered`
+
+## Politica de tracking frente a fallos
+
+Para mantener el POC simple y consistente:
+
+- nunca registrar eventos de exito si el paso no se completo realmente
+- si un flujo falla antes del paso final, el tracking debe quedarse en el ultimo evento exitoso
+- no inventar estados de tracking extra salvo que el equipo decida agregarlos formalmente
+
+## Politica de consistencia del POC
+
+Para ambos paths:
+
+- si falla una validacion o mock externo, no se debe avanzar el estado de negocio
+- si falla la compra, no se descuenta saldo de la factura
+- si falla la publicacion, la factura no debe quedar visible como publicada
+- si el equipo decide persistir estados intermedios, debe documentarlo en el modulo correspondiente
+
 ## Estados minimos
 
 ### Factura

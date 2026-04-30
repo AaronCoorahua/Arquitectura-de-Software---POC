@@ -83,3 +83,16 @@ uvicorn main:app --reload
 - `tracking` se guarda de forma minima
 - `Auth`, `Redis`, banco y pasarela real quedan para una siguiente etapa
 - mock de `SUNAT` y mock de pagos quedan marcados como `TODO`
+
+## Manejo de fallos esperado
+
+Resumen alineado al `POC.md`:
+
+- si falla validacion interna de factura: responder `400` y no publicar
+- si SUNAT mock rechaza: factura `rejected`
+- si SUNAT mock falla tecnicamente: responder `503`
+- si falla validacion de compra: responder `400` o `404` segun el caso
+- si pago mock rechaza: no registrar compra ni descontar saldo
+- si pago mock falla tecnicamente: responder `503`
+
+La matriz detallada de fallos esta en [POC.md](C:/Users/Aaron%20Coorahua/Desktop/UTEC/ArquitecturaSoft/POC%20-%20FACTORING/Arquitectura-de-Software---POC/POC.md).
