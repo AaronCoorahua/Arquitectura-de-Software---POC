@@ -140,3 +140,11 @@ uvicorn main:app --reload
 ```
 
 Luego abre `index.html` para probar los dos paths.
+
+## Imagenes
+
+![Imagen 1](images/image_1.png)
+
+![Imagen 2](images/image_2.png)
+
+![Imagen 3](images/image_3.png)

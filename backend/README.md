@@ -88,10 +88,3 @@ uvicorn main:app --reload
 - hay `CORS` abierto para probar `index.html`
 - no hay auth real, banco real ni pasarela real
 
-## Imagenes
-
-![Imagen 1](../images/image_1.png)
-
-![Imagen 2](../images/image_2.png)
-
-![Imagen 3](../images/image_3.png)
