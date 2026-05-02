@@ -35,6 +35,10 @@ class InvoiceResponse(BaseModel):
 class InvoiceListItem(BaseModel):
     invoice_id: str
     seller_id: str
+    ruc_emisor: str
+    ruc_pagador: str
+    serie: str
+    correlativo: str
     monto: Decimal
     monto_disponible: Decimal
     tasa_interes: Decimal

@@ -63,17 +63,20 @@ En esta iteracion:
 
 ## Persistencia del POC
 
-La base actual usa almacenamiento en memoria para avanzar rapido:
+La base ahora usa `SQLite` local para mantener el POC simple pero persistente:
 
-- `invoices`
-- `purchases`
-- `tracking_events`
+- `backend/factoring_poc.sqlite3`
+- tabla `invoices`
+- tabla `purchases`
+- tabla `tracking_events`
+- tabla `investors`
 
-Esto permite probar los flujos sin meter base de datos todavia.
+La base se inicializa automaticamente al levantar FastAPI y agrega seeds minimos para probar la UI.
 
 ## Ejecutar
 
 ```bash
+pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
@@ -82,7 +85,8 @@ uvicorn main:app --reload
 - `seller_id` e `investor_id` hoy se manejan como mock
 - `tracking` se guarda de forma minima
 - `Auth`, `Redis`, banco y pasarela real quedan para una siguiente etapa
-- mock de `SUNAT` y mock de pagos quedan marcados como `TODO`
+- `SUNAT` y pagos se simulan con reglas mock para el POC
+- existe un endpoint extra `GET /investors/{investor_id}` para leer saldo mock del inversionista desde la UI
 
 ## Manejo de fallos esperado
 
@@ -95,4 +99,4 @@ Resumen alineado al `POC.md`:
 - si pago mock rechaza: no registrar compra ni descontar saldo
 - si pago mock falla tecnicamente: responder `503`
 
-La matriz detallada de fallos esta en [POC.md](C:/Users/Aaron%20Coorahua/Desktop/UTEC/ArquitecturaSoft/POC%20-%20FACTORING/Arquitectura-de-Software---POC/POC.md).
+La matriz detallada de fallos esta en [POC.md].

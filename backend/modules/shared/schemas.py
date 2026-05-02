@@ -1,4 +1,7 @@
+from decimal import Decimal
 from enum import Enum
+
+from pydantic import BaseModel
 
 
 class InvoiceStatus(str, Enum):
@@ -22,3 +25,9 @@ class TrackingStatus(str, Enum):
     SUNAT_VALIDATED = "sunat_validated"
     INVOICE_PUBLISHED = "invoice_published"
     PURCHASE_REGISTERED = "purchase_registered"
+
+
+class InvestorBalanceResponse(BaseModel):
+    investor_id: str
+    name: str
+    balance: Decimal

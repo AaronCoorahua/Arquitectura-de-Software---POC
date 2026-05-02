@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from database import init_db
 
 from modules.facturas.routes import router as facturas_router
 from modules.marketplace.routes import router as marketplace_router
@@ -12,6 +15,19 @@ app = FastAPI(
     version="0.1.0",
     description="POC simple y funcional para factoring.",
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.on_event("startup")
+def startup() -> None:
+    init_db()
 
 app.include_router(shared_router)
 app.include_router(validation_router)
