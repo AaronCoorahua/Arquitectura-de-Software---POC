@@ -87,3 +87,11 @@ uvicorn main:app --reload
 - `seller_id` e `investor_id` son mock
 - hay `CORS` abierto para probar `index.html`
 - no hay auth real, banco real ni pasarela real
+
+## Imagenes
+
+![Imagen 1](../images/image_1.png)
+
+![Imagen 2](../images/image_2.png)
+
+![Imagen 3](../images/image_3.png)
